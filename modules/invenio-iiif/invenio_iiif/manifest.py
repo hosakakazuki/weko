@@ -58,7 +58,30 @@ class IIIFManifest(object):
         self.manifest = factory.manifest(
             ident="identifier/manifest", label=self.record['title']
         )
-        self.manifest.description = self.record['title']
+        resource_list = ['資源タイプ', 'Resource Type']
+        file_info_list = ['Billing File Information','File Infomation'] 
+        try:
+            key_list = [k for k,v in self.record.items() if type(v)==dict and v.get('attribute_name')!=None]
+            for dict_key in key_list:
+                if self.record[dict_key]['attribute_name'] in resource_list:
+                    self.manifest.description = self.record[dict_key]['attribute_value_mlt'][0]['resourcetype']
+                if self.record[dict_key]['attribute_name']=='Description':
+                    self.manifest.description = self.record[dict_key]['attribute_value_mlt'][0]['Description']
+                    break
+                    
+            for dict_key2 in key_list:
+                if self.record[dict_key2]['attribute_name'] in file_info_list:
+                    for i in range(len(self.record[dict_key2]['attribute_value_mlt'])):
+                        if self.record[dict_key2]['attribute_value_mlt'][i]['format']=='image/jpeg' and self.record[dict_key2]['attribute_value_mlt'][i].get('licensetype')!=None:
+                            license_dict=current_app.config['WEKO_RECORDS_UI_LICENSE_DICT']
+                            check_one = self.record[dict_key2]['attribute_value_mlt'][i]['licensetype']
+                            for k in license_dict:
+                                if check_one == k['value']:
+                                    self.manifest.license=k['href_default']
+                            break
+        except  KeyError as c:
+            current_app.logger.error("Please change this ItemType metadata's name.")
+
         self.manifest.viewingDirection = 'left-to-right'
         self.manifest.set_metadata(
             dict(metadata_class(record, **extra_meatadata))  # FIXME prezi!?!?!
