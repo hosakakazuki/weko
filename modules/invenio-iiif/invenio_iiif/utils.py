@@ -13,6 +13,8 @@ from __future__ import absolute_import, print_function
 from flask import current_app
 from invenio_files_rest.models import ObjectVersion
 from six.moves.urllib_parse import quote
+from invenio_records.models import RecordMetadata
+from invenio_records_files.models import RecordsBuckets
 
 
 def iiif_image_key(obj):
