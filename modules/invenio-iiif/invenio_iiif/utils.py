@@ -19,15 +19,18 @@ def iiif_image_key(obj):
     """Generate the IIIF image key."""
     if isinstance(obj, ObjectVersion):
         bucket_id = obj.bucket_id
-        version_id = obj.version_id
+        recordID = RecordsBuckets.query.filter_by(bucket_id=bucket_id).first()
+        recordID2 = RecordMetadata.query.filter_by(id=recordID.record_id).first()
+        item_id = recordID2.json[recid]
         key = obj.key
     else:
         bucket_id = obj.get('bucket')
-        version_id = obj.get('version_id')
+        recordID = RecordsBuckets.query.filter_by(bucket_id=bucket_id).first()
+        recordID2 = RecordMetadata.query.filter_by(id=recordID.record_id).first()
+        item_id = recordID2.json[recid]
         key = obj.get('key')
-    return u'{}:{}:{}'.format(
-        bucket_id,
-        version_id,
+    return u'{}:{}'.format(
+        item_id,
         key,
     )
 
